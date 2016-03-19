@@ -58,6 +58,26 @@ class Browser(val main: MainActivity) {
         fun canGoBack(): Boolean {
             return viewManager.currentTab?.wb?.canGoBack() ?: false
         }
+
+        fun openInOtherBrowser() {
+            Util.openInOtherBrowser(main, viewManager.currentTab!!.wb.url)
+        }
+
+        fun switchJs(enable: Boolean) {
+            tabs.forEach { it.wb.settings.javaScriptEnabled = enable }
+        }
+
+        fun switchImage(enable: Boolean) {
+            tabs.forEach { it.wb.settings.loadsImagesAutomatically = enable }
+        }
+
+        fun IsJsEnabled(): Boolean {
+            return tabs[0].wb.settings.javaScriptEnabled
+        }
+
+        fun IsImageEnabled(): Boolean {
+            return tabs[0].wb.settings.loadsImagesAutomatically
+        }
     }
 
     fun addNewTab(url: String) {

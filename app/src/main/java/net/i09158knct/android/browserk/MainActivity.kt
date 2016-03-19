@@ -6,6 +6,8 @@ import android.net.http.SslError
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
 import android.view.KeyEvent
+import android.view.Menu
+import android.view.MenuItem
 import android.view.View
 import android.webkit.HttpAuthHandler
 import android.webkit.SslErrorHandler
@@ -58,6 +60,34 @@ class MainActivity : AppCompatActivity()
         // TODO タブ数表示
         // TODO 戻る進むボタン無効表示
 
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu): Boolean {
+        menuInflater.inflate(R.menu.main_tool, menu)
+        return true
+    }
+
+    override fun onMenuOpened(featureId: Int, menu: Menu?): Boolean {
+        menu?.findItem(R.id.menuJsEnable)?.setVisible(!browser!!.mainvm.IsJsEnabled())
+        menu?.findItem(R.id.menuJsDisable)?.setVisible(browser!!.mainvm.IsJsEnabled())
+        menu?.findItem(R.id.menuImageEnable)?.setVisible(!browser!!.mainvm.IsImageEnabled())
+        menu?.findItem(R.id.menuImageDisable)?.setVisible(browser!!.mainvm.IsImageEnabled())
+        return super.onMenuOpened(featureId, menu)
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        when (item.itemId) {
+            R.id.menuShare -> browser!!.mainvm.share()
+            R.id.menuOpenInOtherBrowser -> browser!!.mainvm.openInOtherBrowser()
+            R.id.menuJsEnable -> browser!!.mainvm.switchJs(true)
+            R.id.menuJsDisable -> browser!!.mainvm.switchJs(false)
+            R.id.menuImageEnable -> browser!!.mainvm.switchImage(true)
+            R.id.menuImageDisable -> browser!!.mainvm.switchImage(false)
+            else -> {
+                return super.onOptionsItemSelected(item)
+            }
+        }
+        return false
     }
 
     override fun onKeyDown(keyCode: Int, event: KeyEvent?): Boolean {

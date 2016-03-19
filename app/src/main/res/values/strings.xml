@@ -3,4 +3,8 @@
     <string name="menuShare">Share</string>
     <string name="menuOpenInOtherBrowser">Open in Other Browser</string>
     <string name="favicon">favicon</string>
+    <string name="menuJsEnable">Enable JavaScript</string>
+    <string name="menuJsDisable">Disable JavaScript</string>
+    <string name="menuImageEnable">Enable Image</string>
+    <string name="menuImageDisable">Disable Image</string>
 </resources>
