@@ -54,6 +54,10 @@ class Browser(val main: MainActivity) {
             val url = if (valid) query else Util.generateSearchUrl(query)
             viewManager.currentTab?.loadUrl(url)
         }
+
+        fun canGoBack(): Boolean {
+            return viewManager.currentTab?.wb?.canGoBack() ?: false
+        }
     }
 
     fun addNewTab(url: String) {

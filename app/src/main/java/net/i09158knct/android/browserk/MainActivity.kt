@@ -18,18 +18,21 @@ class MainActivity : AppCompatActivity()
         , CustomWebChromeClient.IEventListener
         , CustomWebViewClient.IEventListener {
 
+    var browser: Browser? = null
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         setSupportActionBar(toolbar)
 
-        val browser = Browser(this)
+        browser = Browser(this)
+        val b = browser!!
         val initialUrl = getIntent()?.dataString ?: "https://www.google.com"
-        browser.addNewTab(initialUrl)
+        b.addNewTab(initialUrl)
 
         inputUrl.setOnKeyListener { view: View, keyCode: Int, keyEvent: KeyEvent ->
             if (keyEvent.getAction() == KeyEvent.ACTION_UP && keyCode == KeyEvent.KEYCODE_ENTER) {
-                browser.mainvm.loadUrl(inputUrl.text.toString())
+                b.mainvm.loadUrl(inputUrl.text.toString())
                 return@setOnKeyListener true
             }
             else {
@@ -37,13 +40,13 @@ class MainActivity : AppCompatActivity()
             }
         }
 
-        btnBack.setOnClickListener { browser.mainvm.back() }
-        btnForward.setOnClickListener { browser.mainvm.forward() }
-        btnReload.setOnClickListener { browser.mainvm.reload() }
-        btnStop.setOnClickListener { browser.mainvm.stopLoading() }
-        btnShare.setOnClickListener { browser.mainvm.share() }
-        btnBookmark.setOnClickListener { browser.mainvm.bookmark() }
-        btnTab.setOnClickListener { browser.mainvm.tab() }
+        btnBack.setOnClickListener { b.mainvm.back() }
+        btnForward.setOnClickListener { b.mainvm.forward() }
+        btnReload.setOnClickListener { b.mainvm.reload() }
+        btnStop.setOnClickListener { b.mainvm.stopLoading() }
+        btnShare.setOnClickListener { b.mainvm.share() }
+        btnBookmark.setOnClickListener { b.mainvm.bookmark() }
+        btnTab.setOnClickListener { b.mainvm.tab() }
         btnMenu.setOnClickListener {
             if (supportActionBar!!.isShowing) {
                 supportActionBar!!.hide()
@@ -55,6 +58,16 @@ class MainActivity : AppCompatActivity()
         // TODO タブ数表示
         // TODO 戻る進むボタン無効表示
 
+    }
+
+    override fun onKeyDown(keyCode: Int, event: KeyEvent?): Boolean {
+        if (keyCode == KeyEvent.KEYCODE_BACK) {
+            if (browser!!.mainvm.canGoBack()) {
+                browser!!.mainvm.back()
+                return false
+            }
+        }
+        return super.onKeyDown(keyCode, event)
     }
 
     override fun onProgressChanged(view: WebView, newProgress: Int) {
