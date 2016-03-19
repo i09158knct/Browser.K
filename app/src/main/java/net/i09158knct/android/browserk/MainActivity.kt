@@ -6,15 +6,16 @@ import android.net.http.SslError
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
 import android.view.KeyEvent
-import android.view.Menu
-import android.view.MenuItem
+import android.view.MotionEvent
 import android.view.View
 import android.webkit.HttpAuthHandler
 import android.webkit.SslErrorHandler
 import android.webkit.WebView
-import android.widget.LinearLayout
+import android.widget.PopupMenu
 import kotlinx.android.synthetic.main.activity_main.*
-import net.i09158knct.android.browserk.browser.*
+import net.i09158knct.android.browserk.browser.Browser
+import net.i09158knct.android.browserk.browser.CustomWebChromeClient
+import net.i09158knct.android.browserk.browser.CustomWebViewClient
 
 class MainActivity : AppCompatActivity()
         , CustomWebChromeClient.IEventListener
@@ -36,8 +37,7 @@ class MainActivity : AppCompatActivity()
             if (keyEvent.getAction() == KeyEvent.ACTION_UP && keyCode == KeyEvent.KEYCODE_ENTER) {
                 b.mainvm.loadUrl(inputUrl.text.toString())
                 return@setOnKeyListener true
-            }
-            else {
+            } else {
                 return@setOnKeyListener false
             }
         }
@@ -52,9 +52,32 @@ class MainActivity : AppCompatActivity()
         btnMenu.setOnClickListener {
             if (supportActionBar!!.isShowing) {
                 supportActionBar!!.hide()
-            }
-            else {
+            } else {
                 supportActionBar!!.show()
+                val popup = PopupMenu(this, btnMenu)
+                popup.menuInflater.inflate(R.menu.main_tool, popup.menu)
+                popup.menu.findItem(R.id.menuJsEnable).setVisible(!browser!!.mainvm.IsJsEnabled())
+                popup.menu.findItem(R.id.menuJsDisable).setVisible(browser!!.mainvm.IsJsEnabled())
+                popup.menu.findItem(R.id.menuImageEnable).setVisible(!browser!!.mainvm.IsImageEnabled())
+                popup.menu.findItem(R.id.menuImageDisable).setVisible(browser!!.mainvm.IsImageEnabled())
+                popup.setOnMenuItemClickListener {
+                    when (it.itemId) {
+                        R.id.menuShare -> browser!!.mainvm.share()
+                        R.id.menuOpenInOtherBrowser -> browser!!.mainvm.openInOtherBrowser()
+                        R.id.menuJsEnable -> browser!!.mainvm.switchJs(true)
+                        R.id.menuJsDisable -> browser!!.mainvm.switchJs(false)
+                        R.id.menuImageEnable -> browser!!.mainvm.switchImage(true)
+                        R.id.menuImageDisable -> browser!!.mainvm.switchImage(false)
+                    }
+                    return@setOnMenuItemClickListener false
+                }
+                // TODO TopWrapper実装
+//                popup.setOnDismissListener {
+//                    if (canHideToolBar()) {
+//                        supportActionBar!!.hide()
+//                    }
+//                }
+                popup.show()
             }
         }
         // TODO タブ数表示
@@ -62,32 +85,8 @@ class MainActivity : AppCompatActivity()
 
     }
 
-    override fun onCreateOptionsMenu(menu: Menu): Boolean {
-        menuInflater.inflate(R.menu.main_tool, menu)
-        return true
-    }
-
-    override fun onMenuOpened(featureId: Int, menu: Menu?): Boolean {
-        menu?.findItem(R.id.menuJsEnable)?.setVisible(!browser!!.mainvm.IsJsEnabled())
-        menu?.findItem(R.id.menuJsDisable)?.setVisible(browser!!.mainvm.IsJsEnabled())
-        menu?.findItem(R.id.menuImageEnable)?.setVisible(!browser!!.mainvm.IsImageEnabled())
-        menu?.findItem(R.id.menuImageDisable)?.setVisible(browser!!.mainvm.IsImageEnabled())
-        return super.onMenuOpened(featureId, menu)
-    }
-
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        when (item.itemId) {
-            R.id.menuShare -> browser!!.mainvm.share()
-            R.id.menuOpenInOtherBrowser -> browser!!.mainvm.openInOtherBrowser()
-            R.id.menuJsEnable -> browser!!.mainvm.switchJs(true)
-            R.id.menuJsDisable -> browser!!.mainvm.switchJs(false)
-            R.id.menuImageEnable -> browser!!.mainvm.switchImage(true)
-            R.id.menuImageDisable -> browser!!.mainvm.switchImage(false)
-            else -> {
-                return super.onOptionsItemSelected(item)
-            }
-        }
-        return false
+    override fun onTouchEvent(event: MotionEvent?): Boolean {
+        return super.onTouchEvent(event)
     }
 
     override fun onKeyDown(keyCode: Int, event: KeyEvent?): Boolean {
