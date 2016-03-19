@@ -1,3 +1,5 @@
 <resources>
     <string name="app_name">Browser.K</string>
+    <string name="menuShare">Share</string>
+    <string name="menuOpenInOtherBrowser">Open in Other Browser</string>
 </resources>
