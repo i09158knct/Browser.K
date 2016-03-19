@@ -1,6 +1,5 @@
 package net.i09158knct.android.browserk.browser
 
-import android.content.Context
 import android.webkit.WebView
 import kotlinx.android.synthetic.main.activity_main.*
 import net.i09158knct.android.browserk.MainActivity
@@ -8,11 +7,12 @@ import net.i09158knct.android.browserk.utils.Util
 
 class Browser(val main: MainActivity) {
     val viewManager = BrowserViewManager(main.grpWebViewContainer)
-    val tabs : MutableList<Tab> = mutableListOf()
+    val tabs: MutableList<Tab> = mutableListOf()
     val chromeClient: CustomWebChromeClient = CustomWebChromeClient(main);
     val viewClient: CustomWebViewClient = CustomWebViewClient(main);
 
     val mainvm = MainViewModel()
+
     inner class MainViewModel {
         fun back(): Unit {
             viewManager.currentTab?.back()
@@ -34,6 +34,21 @@ class Browser(val main: MainActivity) {
         }
 
         fun tab() {
+        }
+
+        private val validSchemaList = listOf<String>(
+                "http:",
+                "https:",
+                "javascript:",
+                "about:",
+                "data:",
+                "file:",
+                "content:")
+
+        fun loadUrl(query: String) {
+            val valid = validSchemaList.any { query.startsWith(it) }
+            val url = if (valid) query else Util.generateSearchUrl(query)
+            viewManager.currentTab?.loadUrl(url)
         }
     }
 

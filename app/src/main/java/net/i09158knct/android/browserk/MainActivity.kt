@@ -5,6 +5,8 @@ import android.graphics.drawable.BitmapDrawable
 import android.net.http.SslError
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
+import android.view.KeyEvent
+import android.view.View
 import android.webkit.HttpAuthHandler
 import android.webkit.SslErrorHandler
 import android.webkit.WebView
@@ -25,6 +27,16 @@ class MainActivity : AppCompatActivity()
         val initialUrl = getIntent()?.dataString ?: "https://www.google.com"
         browser.addNewTab(initialUrl)
 
+        inputUrl.setOnKeyListener { view: View, keyCode: Int, keyEvent: KeyEvent ->
+            if (keyEvent.getAction() == KeyEvent.ACTION_UP && keyCode == KeyEvent.KEYCODE_ENTER) {
+                browser.mainvm.loadUrl(inputUrl.text.toString())
+                return@setOnKeyListener true
+            }
+            else {
+                return@setOnKeyListener false
+            }
+        }
+
         btnBack.setOnClickListener { browser.mainvm.back() }
         btnForward.setOnClickListener { browser.mainvm.forward() }
         btnReload.setOnClickListener { browser.mainvm.reload() }
@@ -38,18 +50,20 @@ class MainActivity : AppCompatActivity()
     }
 
     override fun onProgressChanged(view: WebView, newProgress: Int) {
+        prgLoadingProgress.progress = newProgress
     }
 
     override fun onReceivedIcon(view: WebView, icon: Bitmap) {
-        toolbar.setLogo(BitmapDrawable(getResources(), icon))
+        imgFavicon.setImageDrawable(BitmapDrawable(getResources(), icon))
     }
 
     override fun onReceivedTitle(view: WebView, title: String) {
-        toolbar.title = title
+        txtTitle.setText(title)
     }
 
     override fun onPageStarted(view: WebView, url: String, favicon: Bitmap?) {
-        toolbar.subtitle = url
+        inputUrl.setText(url)
+        supportActionBar?.show()
     }
 
     override fun onPageFinished(view: WebView, url: String) {

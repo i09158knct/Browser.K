@@ -2,4 +2,5 @@
     <string name="app_name">Browser.K</string>
     <string name="menuShare">Share</string>
     <string name="menuOpenInOtherBrowser">Open in Other Browser</string>
+    <string name="favicon">favicon</string>
 </resources>
