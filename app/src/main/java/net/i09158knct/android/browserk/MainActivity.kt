@@ -40,16 +40,25 @@ class MainActivity : AppCompatActivity()
         btnBack.setOnClickListener { browser.mainvm.back() }
         btnForward.setOnClickListener { browser.mainvm.forward() }
         btnReload.setOnClickListener { browser.mainvm.reload() }
+        btnStop.setOnClickListener { browser.mainvm.stopLoading() }
         btnShare.setOnClickListener { browser.mainvm.share() }
         btnBookmark.setOnClickListener { browser.mainvm.bookmark() }
         btnTab.setOnClickListener { browser.mainvm.tab() }
+        btnMenu.setOnClickListener {
+            if (supportActionBar!!.isShowing) {
+                supportActionBar!!.hide()
+            }
+            else {
+                supportActionBar!!.show()
+            }
+        }
         // TODO タブ数表示
-        // TODO 中止ボタン
         // TODO 戻る進むボタン無効表示
 
     }
 
     override fun onProgressChanged(view: WebView, newProgress: Int) {
+        prgLoadingProgress.visibility = View.VISIBLE
         prgLoadingProgress.progress = newProgress
     }
 
@@ -63,10 +72,19 @@ class MainActivity : AppCompatActivity()
 
     override fun onPageStarted(view: WebView, url: String, favicon: Bitmap?) {
         inputUrl.setText(url)
-        supportActionBar?.show()
+        btnReload.visibility = View.GONE
+        btnStop.visibility = View.VISIBLE
+        supportActionBar!!.show()
     }
 
+    fun canHideToolBar() = inputUrl.findFocus() == null
     override fun onPageFinished(view: WebView, url: String) {
+        prgLoadingProgress.visibility = View.INVISIBLE
+        btnReload.visibility = View.VISIBLE
+        btnStop.visibility = View.GONE
+        if (canHideToolBar()) {
+            supportActionBar!!.hide()
+        }
     }
 
     override fun onReceivedError(view: WebView, errorCode: Int, description: String, failingUrl: String) {

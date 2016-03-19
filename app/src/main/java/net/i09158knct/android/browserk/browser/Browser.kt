@@ -26,6 +26,10 @@ class Browser(val main: MainActivity) {
             viewManager.currentTab?.reload()
         }
 
+        fun stopLoading() {
+            viewManager.currentTab?.stopLoading()
+        }
+
         fun share() {
             Util.shareUrl(main, viewManager.currentTab!!.wb.url)
         }

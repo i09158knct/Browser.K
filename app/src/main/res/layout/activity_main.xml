@@ -89,7 +89,6 @@
             android:layout_weight="1"
             android:text="▶" />
 
-
         <Button
             android:id="@+id/btnReload"
             style="?android:attr/buttonBarButtonStyle"
@@ -97,6 +96,15 @@
             android:layout_height="match_parent"
             android:layout_weight="1"
             android:text="↻" />
+
+        <Button
+            android:id="@+id/btnStop"
+            style="?android:attr/buttonBarButtonStyle"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:visibility="gone"
+            android:text="✕" />
 
         <Button
             android:id="@+id/btnShare"
@@ -121,5 +129,14 @@
             android:layout_height="match_parent"
             android:layout_weight="1"
             android:text="0" />
+
+        <Button
+            android:id="@+id/btnMenu"
+            style="?android:attr/buttonBarButtonStyle"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:text="…" />
+
     </LinearLayout>
 </RelativeLayout>
