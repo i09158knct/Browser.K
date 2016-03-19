@@ -1,32 +1,40 @@
 package net.i09158knct.android.browserk
 
 import android.graphics.Bitmap
+import android.graphics.PixelFormat
 import android.graphics.drawable.BitmapDrawable
 import android.net.http.SslError
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
-import android.view.KeyEvent
-import android.view.MotionEvent
-import android.view.View
+import android.util.Log
+import android.view.*
 import android.webkit.HttpAuthHandler
 import android.webkit.SslErrorHandler
 import android.webkit.WebView
+import android.widget.Button
 import android.widget.PopupMenu
 import kotlinx.android.synthetic.main.activity_main.*
 import net.i09158knct.android.browserk.browser.Browser
 import net.i09158knct.android.browserk.browser.CustomWebChromeClient
 import net.i09158knct.android.browserk.browser.CustomWebViewClient
+import net.i09158knct.android.browserk.utils.Util
 
 class MainActivity : AppCompatActivity()
         , CustomWebChromeClient.IEventListener
         , CustomWebViewClient.IEventListener {
 
     var browser: Browser? = null
+    private var topwrapper: TopWrapper? = null
+
+    private var popup: PopupMenu? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         setSupportActionBar(toolbar)
+        topwrapper = TopWrapper()
+        getWindowManager().addView(topwrapper, topwrapper!!.windowParams);
+
 
         browser = Browser(this)
         val b = browser!!
@@ -54,13 +62,17 @@ class MainActivity : AppCompatActivity()
                 supportActionBar!!.hide()
             } else {
                 supportActionBar!!.show()
-                val popup = PopupMenu(this, btnMenu)
-                popup.menuInflater.inflate(R.menu.main_tool, popup.menu)
-                popup.menu.findItem(R.id.menuJsEnable).setVisible(!browser!!.mainvm.IsJsEnabled())
-                popup.menu.findItem(R.id.menuJsDisable).setVisible(browser!!.mainvm.IsJsEnabled())
-                popup.menu.findItem(R.id.menuImageEnable).setVisible(!browser!!.mainvm.IsImageEnabled())
-                popup.menu.findItem(R.id.menuImageDisable).setVisible(browser!!.mainvm.IsImageEnabled())
-                popup.setOnMenuItemClickListener {
+                topwrapper!!.visibility = View.VISIBLE;
+                topwrapper!!.height = toolbar.height
+                topwrapper!!.touhed = false
+                val p = PopupMenu(this, btnMenu)
+                popup = p
+                p.menuInflater.inflate(R.menu.main_tool, p.menu)
+                p.menu.findItem(R.id.menuJsEnable).setVisible(!browser!!.mainvm.IsJsEnabled())
+                p.menu.findItem(R.id.menuJsDisable).setVisible(browser!!.mainvm.IsJsEnabled())
+                p.menu.findItem(R.id.menuImageEnable).setVisible(!browser!!.mainvm.IsImageEnabled())
+                p.menu.findItem(R.id.menuImageDisable).setVisible(browser!!.mainvm.IsImageEnabled())
+                p.setOnMenuItemClickListener {
                     when (it.itemId) {
                         R.id.menuShare -> browser!!.mainvm.share()
                         R.id.menuOpenInOtherBrowser -> browser!!.mainvm.openInOtherBrowser()
@@ -71,13 +83,14 @@ class MainActivity : AppCompatActivity()
                     }
                     return@setOnMenuItemClickListener false
                 }
-                // TODO TopWrapper実装
-//                popup.setOnDismissListener {
-//                    if (canHideToolBar()) {
-//                        supportActionBar!!.hide()
-//                    }
-//                }
-                popup.show()
+                p.setOnDismissListener {
+                    if (canHideToolBar()) {
+                        supportActionBar!!.hide()
+                        topwrapper!!.visibility = View.INVISIBLE
+                        topwrapper!!.touhed = false
+                    }
+                }
+                p.show()
             }
         }
         // TODO タブ数表示
@@ -85,8 +98,9 @@ class MainActivity : AppCompatActivity()
 
     }
 
-    override fun onTouchEvent(event: MotionEvent?): Boolean {
-        return super.onTouchEvent(event)
+    override fun onDestroy() {
+        windowManager.removeView(topwrapper!!)
+        super.onDestroy()
     }
 
     override fun onKeyDown(keyCode: Int, event: KeyEvent?): Boolean {
@@ -114,12 +128,19 @@ class MainActivity : AppCompatActivity()
 
     override fun onPageStarted(view: WebView, url: String, favicon: Bitmap?) {
         inputUrl.setText(url)
+        inputUrl.clearFocus()
         btnReload.visibility = View.GONE
         btnStop.visibility = View.VISIBLE
         supportActionBar!!.show()
     }
 
-    fun canHideToolBar() = inputUrl.findFocus() == null
+    fun canHideToolBar(): Boolean {
+        val notFocused = inputUrl.findFocus() == null
+        val notTouched = !topwrapper!!.touhed
+        Log.d(Util.tag, "$notFocused $notTouched")
+        return notFocused && notTouched
+    }
+
     override fun onPageFinished(view: WebView, url: String) {
         prgLoadingProgress.visibility = View.INVISIBLE
         btnReload.visibility = View.VISIBLE
@@ -138,4 +159,34 @@ class MainActivity : AppCompatActivity()
     override fun onReceivedHttpAuthRequest(view: WebView, handler: HttpAuthHandler, host: String, realm: String) {
     }
 
+
+    private inner class TopWrapper() : Button(this) {
+        val windowParams = WindowManager.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT,
+                ViewGroup.LayoutParams.WRAP_CONTENT,
+                WindowManager.LayoutParams.TYPE_APPLICATION,
+                WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE,
+                PixelFormat.TRANSLUCENT);
+        var touhed: Boolean = false
+
+        init {
+            windowParams.gravity = Gravity.TOP
+
+            visibility = View.INVISIBLE
+            layoutParams = ViewGroup.LayoutParams(
+                    ViewGroup.LayoutParams.MATCH_PARENT,
+                    ViewGroup.LayoutParams.WRAP_CONTENT)
+            background.alpha = 0
+        }
+
+        override fun dispatchTouchEvent(event: MotionEvent?): Boolean {
+            visibility = View.INVISIBLE
+            touhed = true
+            popup?.dismiss()
+            toolbar.dispatchTouchEvent(event)
+            touhed = false
+            return super.dispatchTouchEvent(event)
+        }
+    }
 }
+
