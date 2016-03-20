@@ -10,4 +10,8 @@
     <string name="restoreClosedTab">Restore closed tab</string>
     <string name="addNewTab">Add new tab</string>
     <string name="activityNameTabList">Tab List</string>
+    <string name="loading">Loading…</string>
+    <string name="clear">Clear</string>
+    <string name="paste">Paste</string>
+    <string name="enter">Enter</string>
 </resources>

@@ -1,10 +1,12 @@
 package net.i09158knct.android.browserk.activities
 
 import android.app.Activity
+import android.content.ClipDescription
 import android.content.Context
 import android.content.Intent
 import android.graphics.PixelFormat
 import android.os.Bundle
+import android.content.ClipboardManager
 import android.util.Log
 import android.view.*
 import android.view.inputmethod.InputMethodManager
@@ -51,6 +53,30 @@ class MainActivity : Activity()
                 LinearLayout.LayoutParams.MATCH_PARENT)
         browser.foreground.tab.wb.requestFocus()
 
+        btnTitle.setOnClickListener { btnTitle.maxLines = if (btnTitle.maxLines == 1) 10 else 1 }
+        btnClearUrl.setOnClickListener { inputUrl.text.clear() }
+        btnPasteUrl.setOnClickListener {
+            val clipboard = getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager;
+            if (!(clipboard.hasPrimaryClip())) {
+                App.toaster.show("!(clipboard.hasPrimaryClip())")
+            } else if (!(clipboard.primaryClipDescription.hasMimeType(ClipDescription.MIMETYPE_TEXT_PLAIN))) {
+                App.toaster.show("since the clipboard has data but it is not plain text")
+            } else {
+                val item = clipboard.getPrimaryClip().getItemAt(0);
+                val start = inputUrl.selectionStart;
+                val end = inputUrl.selectionEnd;
+                inputUrl.text.replace(Math.min(start, end), Math.max(start, end), item.text);
+
+            }
+        }
+        btnEnterUrl.setOnClickListener {
+            val text = inputUrl.text.toString()
+            if (text.isEmpty()) return@setOnClickListener
+            browser.query(text)
+        }
+        inputUrl.setOnFocusChangeListener { view, b ->
+            grpEditPanel.visibility = View.VISIBLE xor View.GONE xor grpEditPanel.visibility;
+        }
         inputUrl.setOnKeyListener { view: View, keyCode: Int, keyEvent: KeyEvent ->
             if (keyEvent.getAction() == KeyEvent.ACTION_UP && keyCode == KeyEvent.KEYCODE_ENTER) {
                 browser.query(inputUrl.text.toString())
@@ -204,7 +230,7 @@ class MainActivity : Activity()
     }
 
     override fun onTitleChanged(title: String) {
-        txtTitle.setText(title)
+        btnTitle.setText(title)
     }
 
     override fun onUrlChanged(url: String) {

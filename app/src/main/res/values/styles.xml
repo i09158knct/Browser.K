@@ -5,4 +5,20 @@
         <!-- Customize your theme here. -->
     </style>
 
+
+    <style name="non_margin_button">
+        <item name="android:background">@drawable/button_background</item>
+        <item name="android:scaleType">fitCenter</item>
+    </style>
+
+    <style name="button" parent="non_margin_button">
+        <item name="android:layout_margin">1.0dp</item>
+    </style>
+
+    <style name="button.bottombar_button">
+        <item name="android:layout_width">0dp</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_weight">1</item>
+    </style>
+
 </resources>
