@@ -10,7 +10,6 @@ class Browser(val main: MainActivity) {
     val tabs: MutableList<Tab> = mutableListOf()
     val chromeClient: CustomWebChromeClient = CustomWebChromeClient(main);
     val viewClient: CustomWebViewClient = CustomWebViewClient(main);
-
     val mainvm = MainViewModel()
 
     inner class MainViewModel {

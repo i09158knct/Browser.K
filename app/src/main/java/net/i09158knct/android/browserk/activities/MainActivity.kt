@@ -30,10 +30,8 @@ class MainActivity : AppCompatActivity()
         const private val REQUEST_SELECT_TAB: Int = 0x001
     }
 
-
-    var browser: Browser? = null
-    private var topwrapper: TopWrapper? = null
-
+    private lateinit var browser: Browser
+    private lateinit var topwrapper: TopWrapper
     private var popup: PopupMenu? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -41,30 +39,29 @@ class MainActivity : AppCompatActivity()
         setContentView(R.layout.activity_main)
         setSupportActionBar(toolbar)
         topwrapper = TopWrapper()
-        getWindowManager().addView(topwrapper, topwrapper!!.windowParams);
+        getWindowManager().addView(topwrapper, topwrapper.windowParams);
 
-        browser = Browser(this)
-        App.s.browser = browser!!
-        val b = browser!!
+        App.browser = Browser(this)
+        browser = App.browser
         val initialUrl = getIntent()?.dataString ?: "https://www.google.com"
-        val newTab = b.addNewTab(initialUrl)
-        b.changeCurrentTab(newTab)
+        val newTab = browser.addNewTab(initialUrl)
+        browser.changeCurrentTab(newTab)
 
         inputUrl.setOnKeyListener { view: View, keyCode: Int, keyEvent: KeyEvent ->
             if (keyEvent.getAction() == KeyEvent.ACTION_UP && keyCode == KeyEvent.KEYCODE_ENTER) {
-                b.mainvm.loadUrl(inputUrl.text.toString())
+                browser.mainvm.loadUrl(inputUrl.text.toString())
                 return@setOnKeyListener true
             } else {
                 return@setOnKeyListener false
             }
         }
 
-        btnBack.setOnClickListener { b.mainvm.back() }
-        btnForward.setOnClickListener { b.mainvm.forward() }
-        btnReload.setOnClickListener { b.mainvm.reload() }
-        btnStop.setOnClickListener { b.mainvm.stopLoading() }
-        btnShare.setOnClickListener { b.mainvm.share() }
-        btnBookmark.setOnClickListener { b.mainvm.bookmark() }
+        btnBack.setOnClickListener { browser.mainvm.back() }
+        btnForward.setOnClickListener { browser.mainvm.forward() }
+        btnReload.setOnClickListener { browser.mainvm.reload() }
+        btnStop.setOnClickListener { browser.mainvm.stopLoading() }
+        btnShare.setOnClickListener { browser.mainvm.share() }
+        btnBookmark.setOnClickListener { browser.mainvm.bookmark() }
         btnTab.setOnClickListener {
             val intent = Intent(applicationContext, TabListActivity::class.java)
             startActivityForResult(intent, REQUEST_SELECT_TAB)
@@ -74,32 +71,32 @@ class MainActivity : AppCompatActivity()
                 supportActionBar!!.hide()
             } else {
                 supportActionBar!!.show()
-                topwrapper!!.visibility = View.VISIBLE;
-                topwrapper!!.height = toolbar.height
-                topwrapper!!.touhed = false
+                topwrapper.visibility = View.VISIBLE;
+                topwrapper.height = toolbar.height
+                topwrapper.touhed = false
                 val p = PopupMenu(this, btnMenu)
                 popup = p
                 p.menuInflater.inflate(R.menu.main_tool, p.menu)
-                p.menu.findItem(R.id.menuJsEnable).setVisible(!browser!!.mainvm.IsJsEnabled())
-                p.menu.findItem(R.id.menuJsDisable).setVisible(browser!!.mainvm.IsJsEnabled())
-                p.menu.findItem(R.id.menuImageEnable).setVisible(!browser!!.mainvm.IsImageEnabled())
-                p.menu.findItem(R.id.menuImageDisable).setVisible(browser!!.mainvm.IsImageEnabled())
+                p.menu.findItem(R.id.menuJsEnable).setVisible(!browser.mainvm.IsJsEnabled())
+                p.menu.findItem(R.id.menuJsDisable).setVisible(browser.mainvm.IsJsEnabled())
+                p.menu.findItem(R.id.menuImageEnable).setVisible(!browser.mainvm.IsImageEnabled())
+                p.menu.findItem(R.id.menuImageDisable).setVisible(browser.mainvm.IsImageEnabled())
                 p.setOnMenuItemClickListener {
                     when (it.itemId) {
-                        R.id.menuShare -> browser!!.mainvm.share()
-                        R.id.menuOpenInOtherBrowser -> browser!!.mainvm.openInOtherBrowser()
-                        R.id.menuJsEnable -> browser!!.mainvm.switchJs(true)
-                        R.id.menuJsDisable -> browser!!.mainvm.switchJs(false)
-                        R.id.menuImageEnable -> browser!!.mainvm.switchImage(true)
-                        R.id.menuImageDisable -> browser!!.mainvm.switchImage(false)
+                        R.id.menuShare -> browser.mainvm.share()
+                        R.id.menuOpenInOtherBrowser -> browser.mainvm.openInOtherBrowser()
+                        R.id.menuJsEnable -> browser.mainvm.switchJs(true)
+                        R.id.menuJsDisable -> browser.mainvm.switchJs(false)
+                        R.id.menuImageEnable -> browser.mainvm.switchImage(true)
+                        R.id.menuImageDisable -> browser.mainvm.switchImage(false)
                     }
                     return@setOnMenuItemClickListener false
                 }
                 p.setOnDismissListener {
                     if (canHideToolBar()) {
                         supportActionBar!!.hide()
-                        topwrapper!!.visibility = View.INVISIBLE
-                        topwrapper!!.touhed = false
+                        topwrapper.visibility = View.INVISIBLE
+                        topwrapper.touhed = false
                     }
                 }
                 p.show()
@@ -107,11 +104,10 @@ class MainActivity : AppCompatActivity()
         }
         // TODO タブ数表示
         // TODO 戻る進むボタン無効表示
-
     }
 
     override fun onDestroy() {
-        windowManager.removeView(topwrapper!!)
+        windowManager.removeView(topwrapper)
         super.onDestroy()
     }
 
@@ -119,8 +115,8 @@ class MainActivity : AppCompatActivity()
         if (requestCode == REQUEST_SELECT_TAB) {
             if (resultCode == RESULT_OK) {
                 val tabIndex = data!!.getIntExtra(TabListActivity.EXTRA_SELECTED_TAB_INDEX, 0)
-                val tab = browser!!.tabs[tabIndex]
-                browser!!.changeCurrentTab(tab)
+                val tab = browser.tabs[tabIndex]
+                browser.changeCurrentTab(tab)
             } else {
                 // 戻るボタンなどで戻ってきた場合はなにもしない
             }
@@ -135,15 +131,15 @@ class MainActivity : AppCompatActivity()
     override fun onNewIntent(intent: Intent?) {
         Log.d(Util.tag, "${intent?.dataString}")
         if (intent?.dataString != null) {
-            val tab = browser!!.addNewTab(intent!!.dataString);
-            browser!!.changeCurrentTab(tab)
+            val tab = browser.addNewTab(intent!!.dataString);
+            browser.changeCurrentTab(tab)
         }
     }
 
     override fun onKeyDown(keyCode: Int, event: KeyEvent?): Boolean {
         if (keyCode == KeyEvent.KEYCODE_BACK) {
-            if (browser!!.mainvm.canGoBack()) {
-                browser!!.mainvm.back()
+            if (browser.mainvm.canGoBack()) {
+                browser.mainvm.back()
                 return false
             }
         }
@@ -173,7 +169,7 @@ class MainActivity : AppCompatActivity()
 
     fun canHideToolBar(): Boolean {
         val notFocused = inputUrl.findFocus() == null
-        val notTouched = !topwrapper!!.touhed
+        val notTouched = !topwrapper.touhed
         Log.d(Util.tag, "$notFocused $notTouched")
         return notFocused && notTouched
     }

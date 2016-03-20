@@ -27,7 +27,7 @@ class TabListActivity : AppCompatActivity()
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_tab_list)
-        browser = App.s.browser
+        browser = App.browser
         adapter = TabListAdapter(this, browser.tabs, this)
         lstTab.adapter = adapter
 
@@ -38,7 +38,7 @@ class TabListActivity : AppCompatActivity()
 
         btnRestoreClosedTab.setOnClickListener {
             // TODO
-            App.s.toaster.show("TODO")
+            App.toaster.show("TODO")
         }
     }
 

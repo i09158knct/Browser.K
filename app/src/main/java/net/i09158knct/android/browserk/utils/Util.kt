@@ -24,7 +24,7 @@ object Util {
 
     fun debug(tag: String, msg: String): Unit {
         Log.d(tag, msg)
-        App.s.toaster.show("${tag} | ${msg}")
+        App.toaster.show("${tag} | ${msg}")
     }
 
     fun shareUrl(a: Activity, url: String) {
