@@ -32,7 +32,8 @@ class TabListActivity : AppCompatActivity()
         lstTab.adapter = adapter
 
         btnAddNewTab.setOnClickListener {
-            browser.addNewTab("")
+            val tab = browser.addNewTab()
+            tab.loadUrl(browser.homeUrl)
             adapter.notifyDataSetChanged()
         }
 

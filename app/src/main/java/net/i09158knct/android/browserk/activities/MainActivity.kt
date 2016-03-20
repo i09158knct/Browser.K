@@ -1,30 +1,27 @@
 package net.i09158knct.android.browserk.activities
 
+import android.content.Context
 import android.content.Intent
-import android.graphics.Bitmap
 import android.graphics.PixelFormat
-import android.graphics.drawable.BitmapDrawable
-import android.net.http.SslError
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
 import android.util.Log
 import android.view.*
-import android.webkit.HttpAuthHandler
-import android.webkit.SslErrorHandler
-import android.webkit.WebView
+import android.view.inputmethod.InputMethodManager
 import android.widget.Button
+import android.widget.LinearLayout
 import android.widget.PopupMenu
 import kotlinx.android.synthetic.main.activity_main.*
 import net.i09158knct.android.browserk.App
 import net.i09158knct.android.browserk.R
 import net.i09158knct.android.browserk.browser.Browser
-import net.i09158knct.android.browserk.browser.CustomWebChromeClient
-import net.i09158knct.android.browserk.browser.CustomWebViewClient
+import net.i09158knct.android.browserk.browser.ForegroundTabManager
+import net.i09158knct.android.browserk.browser.Tab
 import net.i09158knct.android.browserk.utils.Util
 
 class MainActivity : AppCompatActivity()
-        , CustomWebChromeClient.IEventListener
-        , CustomWebViewClient.IEventListener {
+        , Browser.IEventListener
+        , ForegroundTabManager.IEventListener {
 
     companion object {
         const private val REQUEST_SELECT_TAB: Int = 0x001
@@ -36,6 +33,7 @@ class MainActivity : AppCompatActivity()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        Log.wtf(Util.tag, "${intent?.dataString}")
         setContentView(R.layout.activity_main)
         setSupportActionBar(toolbar)
         topwrapper = TopWrapper()
@@ -43,25 +41,32 @@ class MainActivity : AppCompatActivity()
 
         App.browser = Browser(this)
         browser = App.browser
+        browser.listener = this
+        browser.foreground.listener = this
         val initialUrl = getIntent()?.dataString ?: "https://www.google.com"
-        val newTab = browser.addNewTab(initialUrl)
-        browser.changeCurrentTab(newTab)
+        browser.foreground.tab.loadUrl(initialUrl)
+        btnTab.text = browser.tabs.count().toString()
+
+        grpWebViewContainer.addView(browser.foreground.tab.wb,
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                LinearLayout.LayoutParams.MATCH_PARENT)
+        browser.foreground.tab.wb.requestFocus()
 
         inputUrl.setOnKeyListener { view: View, keyCode: Int, keyEvent: KeyEvent ->
             if (keyEvent.getAction() == KeyEvent.ACTION_UP && keyCode == KeyEvent.KEYCODE_ENTER) {
-                browser.mainvm.loadUrl(inputUrl.text.toString())
+                browser.query(inputUrl.text.toString())
                 return@setOnKeyListener true
             } else {
                 return@setOnKeyListener false
             }
         }
 
-        btnBack.setOnClickListener { browser.mainvm.back() }
-        btnForward.setOnClickListener { browser.mainvm.forward() }
-        btnReload.setOnClickListener { browser.mainvm.reload() }
-        btnStop.setOnClickListener { browser.mainvm.stopLoading() }
-        btnShare.setOnClickListener { browser.mainvm.share() }
-        btnBookmark.setOnClickListener { browser.mainvm.bookmark() }
+        btnBack.setOnClickListener { browser.foreground.tab.back() }
+        btnForward.setOnClickListener { browser.foreground.tab.forward() }
+        btnReload.setOnClickListener { browser.foreground.tab.reload() }
+        btnStop.setOnClickListener { browser.foreground.tab.stopLoading() }
+        btnShare.setOnClickListener { browser.foreground.tab.shareUrl(this) }
+        btnBookmark.setOnClickListener { browser.foreground.tab.bookmark() }
         btnTab.setOnClickListener {
             val intent = Intent(applicationContext, TabListActivity::class.java)
             startActivityForResult(intent, REQUEST_SELECT_TAB)
@@ -77,18 +82,18 @@ class MainActivity : AppCompatActivity()
                 val p = PopupMenu(this, btnMenu)
                 popup = p
                 p.menuInflater.inflate(R.menu.main_tool, p.menu)
-                p.menu.findItem(R.id.menuJsEnable).setVisible(!browser.mainvm.IsJsEnabled())
-                p.menu.findItem(R.id.menuJsDisable).setVisible(browser.mainvm.IsJsEnabled())
-                p.menu.findItem(R.id.menuImageEnable).setVisible(!browser.mainvm.IsImageEnabled())
-                p.menu.findItem(R.id.menuImageDisable).setVisible(browser.mainvm.IsImageEnabled())
+                p.menu.findItem(R.id.menuJsEnable).setVisible(!browser.isJsEnabled)
+                p.menu.findItem(R.id.menuJsDisable).setVisible(browser.isJsEnabled)
+                p.menu.findItem(R.id.menuImageEnable).setVisible(!browser.isImageEnabled)
+                p.menu.findItem(R.id.menuImageDisable).setVisible(browser.isImageEnabled)
                 p.setOnMenuItemClickListener {
                     when (it.itemId) {
-                        R.id.menuShare -> browser.mainvm.share()
-                        R.id.menuOpenInOtherBrowser -> browser.mainvm.openInOtherBrowser()
-                        R.id.menuJsEnable -> browser.mainvm.switchJs(true)
-                        R.id.menuJsDisable -> browser.mainvm.switchJs(false)
-                        R.id.menuImageEnable -> browser.mainvm.switchImage(true)
-                        R.id.menuImageDisable -> browser.mainvm.switchImage(false)
+                        R.id.menuShare -> browser.foreground.tab.shareUrl(this)
+                        R.id.menuOpenInOtherBrowser -> browser.foreground.tab.openInOtherBrowser(this)
+                        R.id.menuJsEnable -> browser.isJsEnabled = true
+                        R.id.menuJsDisable -> browser.isJsEnabled = false
+                        R.id.menuImageEnable -> browser.isImageEnabled = true
+                        R.id.menuImageDisable -> browser.isImageEnabled = false
                     }
                     return@setOnMenuItemClickListener false
                 }
@@ -102,12 +107,11 @@ class MainActivity : AppCompatActivity()
                 p.show()
             }
         }
-        // TODO タブ数表示
-        // TODO 戻る進むボタン無効表示
     }
 
     override fun onDestroy() {
         windowManager.removeView(topwrapper)
+        Log.wtf(Util.tag, "${intent?.dataString}")
         super.onDestroy()
     }
 
@@ -116,7 +120,7 @@ class MainActivity : AppCompatActivity()
             if (resultCode == RESULT_OK) {
                 val tabIndex = data!!.getIntExtra(TabListActivity.EXTRA_SELECTED_TAB_INDEX, 0)
                 val tab = browser.tabs[tabIndex]
-                browser.changeCurrentTab(tab)
+                browser.foreground.changeTab(tab)
             } else {
                 // 戻るボタンなどで戻ってきた場合はなにもしない
             }
@@ -128,43 +132,53 @@ class MainActivity : AppCompatActivity()
         return super.onActivityResult(requestCode, resultCode, data)
     }
 
+    override fun onStart() {
+        super.onStart()
+        Log.wtf(Util.tag, "${intent?.dataString}")
+    }
+
+    override fun onRestart() {
+        super.onRestart()
+        Log.wtf(Util.tag, "${intent?.dataString}")
+    }
+
+    override fun onResume() {
+        super.onResume()
+        Log.wtf(Util.tag, "${intent?.dataString}")
+    }
+
+    override fun onPause() {
+        Log.wtf(Util.tag, "${intent?.dataString}")
+        super.onPause()
+    }
+
+    override fun onStop() {
+        Log.wtf(Util.tag, "${intent?.dataString}")
+        super.onStop()
+    }
+
+
     override fun onNewIntent(intent: Intent?) {
-        Log.d(Util.tag, "${intent?.dataString}")
+        Log.wtf(Util.tag, "${intent?.dataString}")
         if (intent?.dataString != null) {
-            val tab = browser.addNewTab(intent!!.dataString);
-            browser.changeCurrentTab(tab)
+            val tab = browser.addNewTab();
+            tab.loadUrl(intent!!.dataString)
+            browser.foreground.changeTab(tab)
         }
+
+        setIntent(intent);
+        super.onNewIntent(intent);
     }
 
     override fun onKeyDown(keyCode: Int, event: KeyEvent?): Boolean {
         if (keyCode == KeyEvent.KEYCODE_BACK) {
-            if (browser.mainvm.canGoBack()) {
-                browser.mainvm.back()
+            if (browser.foreground.tab.wb.canGoBack()) {
+                browser.foreground.tab.back()
                 return false
             }
+            // TODO タブのクローズ
         }
         return super.onKeyDown(keyCode, event)
-    }
-
-    override fun onProgressChanged(view: WebView, newProgress: Int) {
-        prgLoadingProgress.visibility = View.VISIBLE
-        prgLoadingProgress.progress = newProgress
-    }
-
-    override fun onReceivedIcon(view: WebView, icon: Bitmap) {
-        imgFavicon.setImageDrawable(BitmapDrawable(getResources(), icon))
-    }
-
-    override fun onReceivedTitle(view: WebView, title: String) {
-        txtTitle.setText(title)
-    }
-
-    override fun onPageStarted(view: WebView, url: String, favicon: Bitmap?) {
-        inputUrl.setText(url)
-        inputUrl.clearFocus()
-        btnReload.visibility = View.GONE
-        btnStop.visibility = View.VISIBLE
-        supportActionBar!!.show()
     }
 
     fun canHideToolBar(): Boolean {
@@ -174,22 +188,61 @@ class MainActivity : AppCompatActivity()
         return notFocused && notTouched
     }
 
-    override fun onPageFinished(view: WebView, url: String) {
+    override fun onTabCountChanged(count: Int) {
+        btnTab.text = count.toString()
+    }
+
+    override fun onForegroundTabChanged(oldTab: Tab, newTab: Tab) {
+        grpWebViewContainer.removeView(oldTab.wb)
+        grpWebViewContainer.addView(newTab.wb,
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                LinearLayout.LayoutParams.MATCH_PARENT)
+        newTab.wb.requestFocus()
+    }
+
+    override fun onTitleChanged(title: String) {
+        txtTitle.setText(title)
+    }
+
+    override fun onUrlChanged(url: String) {
+        inputUrl.setText(url)
+    }
+
+    override fun onPageStarted() {
+        val view = getCurrentFocus();
+        if (view != null) {
+            val imm = getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager;
+            imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
+        }
+
+        browser.foreground.tab.wb.requestFocus()
+        supportActionBar!!.show()
+        prgLoadingProgress.progress = 0
+        prgLoadingProgress.visibility = View.VISIBLE
+    }
+
+    override fun onPageFinished() {
         prgLoadingProgress.visibility = View.INVISIBLE
-        btnReload.visibility = View.VISIBLE
-        btnStop.visibility = View.GONE
         if (canHideToolBar()) {
             supportActionBar!!.hide()
         }
     }
 
-    override fun onReceivedError(view: WebView, errorCode: Int, description: String, failingUrl: String) {
+    override fun onProgressChanged(progress: Int) {
+        prgLoadingProgress.progress = progress
+        prgLoadingProgress.visibility =
+                if (progress == 0) View.INVISIBLE
+                else View.VISIBLE
     }
 
-    override fun onReceivedSslError(view: WebView, handler: SslErrorHandler, error: SslError) {
+    override fun onBackForwardStateChanged(canGoBack: Boolean, canGoForward: Boolean) {
+        btnBack.isEnabled = canGoBack
+        btnForward.isEnabled = canGoForward
     }
 
-    override fun onReceivedHttpAuthRequest(view: WebView, handler: HttpAuthHandler, host: String, realm: String) {
+    override fun onReloadStopStateChanged(loading: Boolean) {
+        btnReload.visibility = if (loading) View.GONE else View.VISIBLE
+        btnStop.visibility = if (loading) View.VISIBLE else View.GONE
     }
 
 
