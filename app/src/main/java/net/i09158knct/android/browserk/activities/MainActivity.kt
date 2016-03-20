@@ -260,7 +260,7 @@ class MainActivity : Activity()
     override fun onProgressChanged(progress: Int) {
         prgLoadingProgress.progress = progress
         prgLoadingProgress.visibility =
-                if (progress == 0) View.INVISIBLE
+                if (progress == 100) View.INVISIBLE
                 else View.VISIBLE
     }
 
