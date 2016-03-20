@@ -1,4 +1,4 @@
-package net.i09158knct.android.browserk
+package net.i09158knct.android.browserk.activities
 
 import android.graphics.Bitmap
 import android.graphics.PixelFormat
@@ -14,6 +14,7 @@ import android.webkit.WebView
 import android.widget.Button
 import android.widget.PopupMenu
 import kotlinx.android.synthetic.main.activity_main.*
+import net.i09158knct.android.browserk.R
 import net.i09158knct.android.browserk.browser.Browser
 import net.i09158knct.android.browserk.browser.CustomWebChromeClient
 import net.i09158knct.android.browserk.browser.CustomWebViewClient

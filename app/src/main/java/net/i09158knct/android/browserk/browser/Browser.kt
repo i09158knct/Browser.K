@@ -2,7 +2,7 @@ package net.i09158knct.android.browserk.browser
 
 import android.webkit.WebView
 import kotlinx.android.synthetic.main.activity_main.*
-import net.i09158knct.android.browserk.MainActivity
+import net.i09158knct.android.browserk.activities.MainActivity
 import net.i09158knct.android.browserk.utils.Util
 
 class Browser(val main: MainActivity) {

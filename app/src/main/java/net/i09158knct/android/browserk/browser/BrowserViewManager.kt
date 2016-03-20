@@ -1,7 +1,7 @@
 package net.i09158knct.android.browserk.browser
 
 import android.widget.LinearLayout
-import net.i09158knct.android.browserk.MainActivity
+import net.i09158knct.android.browserk.activities.MainActivity
 
 class BrowserViewManager(val view: LinearLayout) {
     var currentTab: Tab? = null
