@@ -49,8 +49,19 @@ class Browser(val context: MainActivity, var homeUrl: String = "https://www.goog
     }
 
     fun closeTab(tab: Tab) {
+        // タブをtabsから削除する。
+        val index = tabs.indexOf(tab)
         tabs.remove(tab)
-        tab.wb.destroy()
+        // TODO タブ復元機能
+
+        // 閉じたタブがforegroundだった場合は別のタブをforegroundにする。
+        // ただし、タブが全部閉じられた場合は何もしない。
+        if (foreground.tab.equals(tab) && !tabs.isEmpty()) {
+            foreground.changeTab(tabs[Math.min(index, tabs.count() - 1)])
+        }
+
+       tab.wb.destroy()
+       listener?.onTabCountChanged(tabs.count())
     }
 
     interface IEventListener {

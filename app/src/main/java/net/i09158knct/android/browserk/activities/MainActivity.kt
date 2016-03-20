@@ -176,7 +176,11 @@ class MainActivity : AppCompatActivity()
                 browser.foreground.tab.back()
                 return false
             }
-            // TODO タブのクローズ
+            // もうこれ以上戻れないならタブを閉じる。
+            // 全てのタブを閉じた場合はアプリを閉じる（デフォルト動作）。
+            browser.closeTab(browser.foreground.tab)
+            if (!browser.tabs.isEmpty()) return false
+            else super.onKeyDown(keyCode, event)
         }
         return super.onKeyDown(keyCode, event)
     }
