@@ -7,4 +7,7 @@
     <string name="menuJsDisable">Disable JavaScript</string>
     <string name="menuImageEnable">Enable Image</string>
     <string name="menuImageDisable">Disable Image</string>
+    <string name="restoreClosedTab">Restore closed tab</string>
+    <string name="addNewTab">Add new tab</string>
+    <string name="activityNameTabList">Tab List</string>
 </resources>

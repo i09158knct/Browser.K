@@ -80,11 +80,20 @@ class Browser(val main: MainActivity) {
         }
     }
 
-    fun addNewTab(url: String) {
+    fun addNewTab(url: String) : Tab {
         val webview = WebView(main)
         val tab = Tab(webview, chromeClient, viewClient)
         tabs.add(tab)
+        tab.wb.loadUrl(url) // FIXME 正しい読み込みタイミング
+        return tab
+    }
+
+    fun changeCurrentTab(tab: Tab) {
         viewManager.showTab(tab)
-        tab.wb.loadUrl(url)
+    }
+
+    fun closeTab(tab: Tab) {
+        tabs.remove(tab)
+        tab.wb.destroy()
     }
 }

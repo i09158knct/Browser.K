@@ -1,5 +1,6 @@
 package net.i09158knct.android.browserk.activities
 
+import android.content.Intent
 import android.graphics.Bitmap
 import android.graphics.PixelFormat
 import android.graphics.drawable.BitmapDrawable
@@ -14,6 +15,7 @@ import android.webkit.WebView
 import android.widget.Button
 import android.widget.PopupMenu
 import kotlinx.android.synthetic.main.activity_main.*
+import net.i09158knct.android.browserk.App
 import net.i09158knct.android.browserk.R
 import net.i09158knct.android.browserk.browser.Browser
 import net.i09158knct.android.browserk.browser.CustomWebChromeClient
@@ -23,6 +25,11 @@ import net.i09158knct.android.browserk.utils.Util
 class MainActivity : AppCompatActivity()
         , CustomWebChromeClient.IEventListener
         , CustomWebViewClient.IEventListener {
+
+    companion object {
+        const private val REQUEST_SELECT_TAB: Int = 0x001
+    }
+
 
     var browser: Browser? = null
     private var topwrapper: TopWrapper? = null
@@ -36,11 +43,12 @@ class MainActivity : AppCompatActivity()
         topwrapper = TopWrapper()
         getWindowManager().addView(topwrapper, topwrapper!!.windowParams);
 
-
         browser = Browser(this)
+        App.s.browser = browser!!
         val b = browser!!
         val initialUrl = getIntent()?.dataString ?: "https://www.google.com"
-        b.addNewTab(initialUrl)
+        val newTab = b.addNewTab(initialUrl)
+        b.changeCurrentTab(newTab)
 
         inputUrl.setOnKeyListener { view: View, keyCode: Int, keyEvent: KeyEvent ->
             if (keyEvent.getAction() == KeyEvent.ACTION_UP && keyCode == KeyEvent.KEYCODE_ENTER) {
@@ -57,7 +65,10 @@ class MainActivity : AppCompatActivity()
         btnStop.setOnClickListener { b.mainvm.stopLoading() }
         btnShare.setOnClickListener { b.mainvm.share() }
         btnBookmark.setOnClickListener { b.mainvm.bookmark() }
-        btnTab.setOnClickListener { b.mainvm.tab() }
+        btnTab.setOnClickListener {
+            val intent = Intent(applicationContext, TabListActivity::class.java)
+            startActivityForResult(intent, REQUEST_SELECT_TAB)
+        }
         btnMenu.setOnClickListener {
             if (supportActionBar!!.isShowing) {
                 supportActionBar!!.hide()
@@ -102,6 +113,23 @@ class MainActivity : AppCompatActivity()
     override fun onDestroy() {
         windowManager.removeView(topwrapper!!)
         super.onDestroy()
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        if (requestCode == REQUEST_SELECT_TAB) {
+            if (resultCode == RESULT_OK) {
+                val tabIndex = data!!.getIntExtra(TabListActivity.EXTRA_SELECTED_TAB_INDEX, 0)
+                val tab = browser!!.tabs[tabIndex]
+                browser!!.changeCurrentTab(tab)
+            } else {
+                // 戻るボタンなどで戻ってきた場合はなにもしない
+            }
+            // TODO タブがひとつもない場合
+            return
+        }
+
+        Util.debug(Util.tag, "Unhandled Activity Result: $requestCode $resultCode")
+        return super.onActivityResult(requestCode, resultCode, data)
     }
 
     override fun onKeyDown(keyCode: Int, event: KeyEvent?): Boolean {

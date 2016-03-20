@@ -1,6 +1,7 @@
 package net.i09158knct.android.browserk
 
 import android.app.Application
+import net.i09158knct.android.browserk.browser.Browser
 import net.i09158knct.android.browserk.services.Toaster
 
 class App : Application() {
@@ -21,6 +22,7 @@ class App : Application() {
 
         class Singletons(val app: App) {
             val toaster = Toaster(app)
+            lateinit var browser: Browser
         }
     }
 
