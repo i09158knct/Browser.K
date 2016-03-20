@@ -132,6 +132,14 @@ class MainActivity : AppCompatActivity()
         return super.onActivityResult(requestCode, resultCode, data)
     }
 
+    override fun onNewIntent(intent: Intent?) {
+        Log.d(Util.tag, "${intent?.dataString}")
+        if (intent?.dataString != null) {
+            val tab = browser!!.addNewTab(intent!!.dataString);
+            browser!!.changeCurrentTab(tab)
+        }
+    }
+
     override fun onKeyDown(keyCode: Int, event: KeyEvent?): Boolean {
         if (keyCode == KeyEvent.KEYCODE_BACK) {
             if (browser!!.mainvm.canGoBack()) {
