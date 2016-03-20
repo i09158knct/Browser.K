@@ -1,10 +1,10 @@
 package net.i09158knct.android.browserk.activities
 
+import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import android.graphics.PixelFormat
 import android.os.Bundle
-import android.support.v7.app.AppCompatActivity
 import android.util.Log
 import android.view.*
 import android.view.inputmethod.InputMethodManager
@@ -19,7 +19,7 @@ import net.i09158knct.android.browserk.browser.ForegroundTabManager
 import net.i09158knct.android.browserk.browser.Tab
 import net.i09158knct.android.browserk.utils.Util
 
-class MainActivity : AppCompatActivity()
+class MainActivity : Activity()
         , Browser.IEventListener
         , ForegroundTabManager.IEventListener {
 
@@ -35,7 +35,6 @@ class MainActivity : AppCompatActivity()
         super.onCreate(savedInstanceState)
         Log.wtf(Util.tag, "${intent?.dataString}")
         setContentView(R.layout.activity_main)
-        setSupportActionBar(toolbar)
         topwrapper = TopWrapper()
         getWindowManager().addView(topwrapper, topwrapper.windowParams);
 
@@ -72,10 +71,10 @@ class MainActivity : AppCompatActivity()
             startActivityForResult(intent, REQUEST_SELECT_TAB)
         }
         btnMenu.setOnClickListener {
-            if (supportActionBar!!.isShowing) {
-                supportActionBar!!.hide()
+            if (toolbar.visibility == View.VISIBLE) {
+                toolbar.visibility = View.INVISIBLE
             } else {
-                supportActionBar!!.show()
+                toolbar.visibility = View.VISIBLE
                 topwrapper.visibility = View.VISIBLE;
                 topwrapper.height = toolbar.height
                 topwrapper.touhed = false
@@ -99,7 +98,7 @@ class MainActivity : AppCompatActivity()
                 }
                 p.setOnDismissListener {
                     if (canHideToolBar()) {
-                        supportActionBar!!.hide()
+                        toolbar.visibility = View.INVISIBLE
                         topwrapper.visibility = View.INVISIBLE
                         topwrapper.touhed = false
                     }
@@ -220,7 +219,7 @@ class MainActivity : AppCompatActivity()
         }
 
         browser.foreground.tab.wb.requestFocus()
-        supportActionBar!!.show()
+        toolbar.visibility = View.VISIBLE
         prgLoadingProgress.progress = 0
         prgLoadingProgress.visibility = View.VISIBLE
     }
@@ -228,7 +227,7 @@ class MainActivity : AppCompatActivity()
     override fun onPageFinished() {
         prgLoadingProgress.visibility = View.INVISIBLE
         if (canHideToolBar()) {
-            supportActionBar!!.hide()
+            toolbar.visibility = View.INVISIBLE
         }
     }
 

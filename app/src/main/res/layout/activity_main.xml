@@ -1,61 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".activities.MainActivity">
-
-    <android.support.v7.widget.Toolbar
-        android:id="@+id/toolbar"
-        android:layout_width="match_parent"
-        android:layout_height="?attr/actionBarSize"
-        android:background="?attr/colorPrimary"
-        android:elevation="4dp"
-        android:theme="@style/ThemeOverlay.AppCompat.ActionBar"
-        app:popupTheme="@style/ThemeOverlay.AppCompat.Light">
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:orientation="vertical">
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="0dp"
-                android:layout_weight="1"
-                android:background="#fcc">
-
-                <ImageView
-                    android:id="@+id/imgFavicon"
-                    android:layout_width="30dp"
-                    android:layout_height="match_parent"
-                    android:contentDescription="@string/favicon" />
-
-                <TextView
-                    android:id="@+id/txtTitle"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:labelFor="@+id/inputUrl" />
-            </LinearLayout>
-
-            <EditText
-                android:id="@+id/inputUrl"
-                android:layout_width="match_parent"
-                android:layout_height="0dp"
-                android:layout_weight="1"
-                android:background="#cfc"
-                android:inputType="textUri" />
-
-            <ProgressBar
-                android:id="@+id/prgLoadingProgress"
-                style="@style/Base.Widget.AppCompat.ProgressBar.Horizontal"
-                android:layout_width="match_parent"
-                android:layout_height="2dp"
-                android:progress="20" />
-
-        </LinearLayout>
-    </android.support.v7.widget.Toolbar>
 
     <LinearLayout
         android:id="@+id/grpWebViewContainer"
@@ -64,6 +12,50 @@
         android:layout_above="@+id/grpButtons"
         android:layout_alignParentStart="true"
         android:orientation="vertical" />
+
+    <LinearLayout
+        android:id="@+id/toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="56dp"
+        android:layout_alignParentStart="true"
+        android:orientation="vertical">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:background="#fcc">
+
+            <ImageView
+                android:id="@+id/imgFavicon"
+                android:layout_width="30dp"
+                android:layout_height="match_parent"
+                android:contentDescription="@string/favicon" />
+
+            <TextView
+                android:id="@+id/txtTitle"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:labelFor="@+id/inputUrl" />
+        </LinearLayout>
+
+        <EditText
+            android:id="@+id/inputUrl"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:background="#cfc"
+            android:inputType="textUri" />
+
+        <ProgressBar
+            android:id="@+id/prgLoadingProgress"
+            style="@android:style/Widget.ProgressBar.Horizontal"
+            android:layout_width="match_parent"
+            android:layout_height="2dp"
+            android:progress="20" />
+
+    </LinearLayout>
+
 
     <LinearLayout
         android:id="@+id/grpButtons"
@@ -103,8 +95,8 @@
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_weight="1"
-            android:visibility="gone"
-            android:text="✕" />
+            android:text="✕"
+            android:visibility="gone" />
 
         <Button
             android:id="@+id/btnShare"
