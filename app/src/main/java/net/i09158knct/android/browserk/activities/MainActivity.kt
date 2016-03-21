@@ -149,7 +149,12 @@ class MainActivity : Activity()
             } else {
                 // 戻るボタンなどで戻ってきた場合はなにもしない
             }
-            // TODO タブがひとつもない場合
+            // タブがひとつもない場合は新しくタブを開く
+            if (browser.tabs.isEmpty()) {
+                val tab = browser.addNewTab()
+                tab.loadUrl(browser.homeUrl)
+                browser.foreground.changeTab(tab)
+            }
             return
         }
 
