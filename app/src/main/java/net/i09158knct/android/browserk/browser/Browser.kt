@@ -43,6 +43,8 @@ class Browser(val context: MainActivity, var homeUrl: String = "https://www.goog
     fun addNewTab(): Tab {
         val webview = WebView(context)
         val tab = Tab(webview, isJsEnabled, isImageEnabled)
+        tab.wb.setWebViewClient(ForegroundTabManager.BackgroundViewClient)
+        tab.wb.setWebChromeClient(ForegroundTabManager.BackGroundChromeClient)
         tabs.add(tab)
         listener?.onTabCountChanged(tabs.count())
         return tab

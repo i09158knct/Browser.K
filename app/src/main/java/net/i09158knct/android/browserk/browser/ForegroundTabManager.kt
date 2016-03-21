@@ -20,6 +20,8 @@ class ForegroundTabManager(var tab: Tab) {
         newTab.wb.setWebViewClient(viewClient)
         newTab.wb.setWebChromeClient(chromeClient)
         val oldTab = tab
+        oldTab.wb.setWebViewClient(BackgroundViewClient)
+        oldTab.wb.setWebChromeClient(BackGroundChromeClient)
         tab = newTab
         listener?.onForegroundTabChanged(oldTab, tab)
         listener?.onTitleChanged(tab.wb.title)
@@ -42,6 +44,15 @@ class ForegroundTabManager(var tab: Tab) {
         fun onProgressChanged(progress: Int)
         fun onBackForwardStateChanged(canGoBack: Boolean, canGoForward: Boolean)
         fun onReloadStopStateChanged(loading: Boolean)
+    }
+
+    object BackgroundViewClient : WebViewClient() {
+        override fun shouldOverrideUrlLoading(view: WebView, url: String): Boolean {
+            Log.v(Util.tag, "url: ${url}")
+            return false
+        }
+    }
+    object  BackGroundChromeClient : WebChromeClient() {
     }
 
     inner class ViewClient() : WebViewClient() {
