@@ -7,6 +7,20 @@ import net.i09158knct.android.browserk.activities.MainActivity
 import net.i09158knct.android.browserk.utils.Util
 
 class Browser(val context: MainActivity, var homeUrl: String = "https://www.google.co.jp") {
+    var isJsEnabled: Boolean = false
+        get
+        set(value) {
+            field = value
+            tabs.forEach { it.wb.settings.javaScriptEnabled = value }
+        }
+
+    var isImageEnabled: Boolean = true
+        get
+        set(value) {
+            field = value
+            tabs.forEach { it.wb.settings.loadsImagesAutomatically = value }
+        }
+
     val tabs = mutableListOf<Tab>()
     val foreground = ForegroundTabManager(addNewTab())
     var listener: IEventListener? = null
@@ -26,23 +40,9 @@ class Browser(val context: MainActivity, var homeUrl: String = "https://www.goog
         foreground.tab.loadUrl(url)
     }
 
-    var isJsEnabled: Boolean = false
-        get
-        set(value) {
-            field = value
-            tabs.forEach { it.wb.settings.javaScriptEnabled = value }
-        }
-
-    var isImageEnabled: Boolean = false
-        get
-        set(value) {
-            field = value
-            tabs.forEach { it.wb.settings.loadsImagesAutomatically = value }
-        }
-
     fun addNewTab(): Tab {
         val webview = WebView(context)
-        val tab = Tab(webview)
+        val tab = Tab(webview, isJsEnabled, isImageEnabled)
         tabs.add(tab)
         listener?.onTabCountChanged(tabs.count())
         return tab
