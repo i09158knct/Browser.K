@@ -7,4 +7,7 @@ class Toaster(val context: Context) {
     fun show(text: String): Unit {
         Toast.makeText(context, text, Toast.LENGTH_SHORT).show();
     }
+    fun show(resId: Int): Unit {
+        Toast.makeText(context, resId, Toast.LENGTH_SHORT).show();
+    }
 }

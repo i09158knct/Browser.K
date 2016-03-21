@@ -2,14 +2,15 @@ package net.i09158knct.android.browserk.activities
 
 import android.app.Activity
 import android.content.ClipDescription
+import android.content.ClipboardManager
 import android.content.Context
 import android.content.Intent
 import android.graphics.PixelFormat
 import android.os.Bundle
-import android.content.ClipboardManager
 import android.util.Log
 import android.view.*
 import android.view.inputmethod.InputMethodManager
+import android.webkit.WebView
 import android.widget.Button
 import android.widget.LinearLayout
 import android.widget.PopupMenu
@@ -32,6 +33,7 @@ class MainActivity : Activity()
     private lateinit var browser: Browser
     private lateinit var topwrapper: TopWrapper
     private var popup: PopupMenu? = null
+    private var selectedWebNode: WebView.HitTestResult? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -52,6 +54,7 @@ class MainActivity : Activity()
                 LinearLayout.LayoutParams.MATCH_PARENT,
                 LinearLayout.LayoutParams.MATCH_PARENT)
         browser.foreground.tab.wb.requestFocus()
+        registerForContextMenu(browser.foreground.tab.wb);
 
         btnTitle.setOnClickListener { btnTitle.maxLines = if (btnTitle.maxLines == 1) 10 else 1 }
         btnClearUrl.setOnClickListener { inputUrl.text.clear() }
@@ -200,6 +203,61 @@ class MainActivity : Activity()
         super.onNewIntent(intent);
     }
 
+    override fun onCreateContextMenu(menu: ContextMenu?, v: View?, menuInfo: ContextMenu.ContextMenuInfo?) {
+        if (menu == null) return
+        if (v == null) return
+
+        if (v is WebView) {
+            val wb = v as WebView
+            val node = wb.hitTestResult
+            val type = node.type
+            selectedWebNode = node
+            if (type == WebView.HitTestResult.UNKNOWN_TYPE ||
+                    type == WebView.HitTestResult.EDIT_TEXT_TYPE) {
+                return
+            }
+            val title = node.extra
+            menu.setHeaderTitle(title)
+            menuInflater.inflate(R.menu.main_web_context, menu)
+            menu.setGroupVisible(R.id.menugAnchor, type == WebView.HitTestResult.SRC_ANCHOR_TYPE
+                    || type == WebView.HitTestResult.SRC_IMAGE_ANCHOR_TYPE
+                    || type == WebView.HitTestResult.IMAGE_TYPE
+            )
+            menu.setGroupVisible(R.id.menugImage, type == WebView.HitTestResult.SRC_IMAGE_ANCHOR_TYPE
+                    || type == WebView.HitTestResult.IMAGE_TYPE
+            )
+            menu.setGroupVisible(R.id.menugPhone, type == WebView.HitTestResult.PHONE_TYPE)
+            menu.setGroupVisible(R.id.menugMail, type == WebView.HitTestResult.EMAIL_TYPE)
+            menu.setGroupVisible(R.id.menugGeo, type == WebView.HitTestResult.GEO_TYPE)
+
+        }
+    }
+
+    override fun onContextItemSelected(item: MenuItem?): Boolean {
+        if (item == null) return super.onContextItemSelected(item)
+        if (selectedWebNode == null) return super.onContextItemSelected(item)
+        val node = selectedWebNode!!
+        when (item.itemId) {
+            R.id.menuShare -> Util.shareUrl(this, node.extra);
+            R.id.menuCopyUrl -> {
+                Util.copyToClipboard(this, node.extra)
+                App.toaster.show(R.string.copied)
+            }
+            R.id.menuOpenInNewTab -> {
+                val tab = browser.addNewTab()
+                tab.loadUrl(node.extra)
+                browser.foreground.changeTab(tab)
+            }
+            R.id.menuOpenInBackground -> {
+                val tab = browser.addNewTab()
+                tab.loadUrl(node.extra)
+            }
+            R.id.menuOpenInOtherBrowser -> Util.openInOtherBrowser(this, node.extra)
+            else -> return super.onContextItemSelected(item)
+        }
+        return true
+    }
+
     override fun onKeyDown(keyCode: Int, event: KeyEvent?): Boolean {
         if (keyCode == KeyEvent.KEYCODE_BACK) {
             if (browser.foreground.tab.wb.canGoBack()) {
@@ -232,6 +290,7 @@ class MainActivity : Activity()
                 LinearLayout.LayoutParams.MATCH_PARENT,
                 LinearLayout.LayoutParams.MATCH_PARENT)
         newTab.wb.requestFocus()
+        registerForContextMenu(browser.foreground.tab.wb);
     }
 
     override fun onTitleChanged(title: String) {

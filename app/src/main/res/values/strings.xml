@@ -2,6 +2,8 @@
     <string name="app_name">Browser.K</string>
     <string name="menuShare">Share</string>
     <string name="menuOpenInOtherBrowser">Open in Other Browser</string>
+    <string name="menuOpenInNewTab">Open in New Tab</string>
+    <string name="menuOpenInBackground">Open in Background</string>
     <string name="favicon">favicon</string>
     <string name="menuJsEnable">Enable JavaScript</string>
     <string name="menuJsDisable">Disable JavaScript</string>
@@ -15,4 +17,6 @@
     <string name="paste">Paste</string>
     <string name="enter">Enter</string>
     <string name="tabList">Tab List</string>
+    <string name="menuCopyUrl">Copy URL</string>
+    <string name="copied">Copied!</string>
 </resources>

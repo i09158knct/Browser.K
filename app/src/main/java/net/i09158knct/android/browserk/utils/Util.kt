@@ -1,6 +1,9 @@
 package net.i09158knct.android.browserk.utils
 
 import android.app.Activity
+import android.content.ClipData
+import android.content.ClipboardManager
+import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.util.Log
@@ -47,5 +50,10 @@ object Util {
             e.printStackTrace()
         }
         return "https://www.google.co.jp/search?q="
+    }
+
+    fun copyToClipboard(context: Context, text: String) {
+        val clipboard = context.getSystemService(Activity.CLIPBOARD_SERVICE) as ClipboardManager;
+        clipboard.primaryClip = ClipData.newPlainText(context.getString(R.string.app_name), text)
     }
 }
