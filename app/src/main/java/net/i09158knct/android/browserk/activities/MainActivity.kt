@@ -267,6 +267,7 @@ class MainActivity : Activity()
             // もうこれ以上戻れないならタブを閉じる。
             // 全てのタブを閉じた場合はアプリを閉じる（デフォルト動作）。
             browser.closeTab(browser.foreground.tab)
+            App.toaster.show(R.string.tabClosed)
             if (!browser.tabs.isEmpty()) return false
             else return super.onKeyDown(keyCode, event)
         }
