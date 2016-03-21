@@ -210,7 +210,7 @@ class MainActivity : Activity()
             // 全てのタブを閉じた場合はアプリを閉じる（デフォルト動作）。
             browser.closeTab(browser.foreground.tab)
             if (!browser.tabs.isEmpty()) return false
-            else super.onKeyDown(keyCode, event)
+            else return super.onKeyDown(keyCode, event)
         }
         return super.onKeyDown(keyCode, event)
     }
