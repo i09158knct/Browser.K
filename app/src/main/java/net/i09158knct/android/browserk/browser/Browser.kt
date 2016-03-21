@@ -6,7 +6,7 @@ import android.webkit.WebView
 import net.i09158knct.android.browserk.activities.MainActivity
 import net.i09158knct.android.browserk.utils.Util
 
-class Browser(val context: MainActivity, var homeUrl: String = "https://www.google.co.jp") {
+class Browser(val context: MainActivity, var homeUrl: String = "https://www.google.com") {
     var isJsEnabled: Boolean = false
         get
         set(value) {
