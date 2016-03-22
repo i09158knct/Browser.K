@@ -233,17 +233,32 @@ class MainActivity : Activity()
     }
 
     override fun onKeyDown(keyCode: Int, event: KeyEvent?): Boolean {
-        if (keyCode == KeyEvent.KEYCODE_BACK) {
-            if (browser.foreground.tab.wb.canGoBack()) {
-                browser.foreground.tab.back()
-                return false
+        when (keyCode) {
+            KeyEvent.KEYCODE_BACK -> {
+                if (browser.foreground.tab.wb.canGoBack()) {
+                    browser.foreground.tab.back()
+                    return true
+                }
+                // もうこれ以上戻れないならタブを閉じる。
+                // 全てのタブを閉じた場合はアプリを閉じる（デフォルト動作）。
+                browser.closeTab(browser.foreground.tab)
+                App.toaster.show(R.string.tabClosed)
+                if (!browser.tabs.isEmpty()) return true
+                else return super.onKeyDown(keyCode, event)
             }
-            // もうこれ以上戻れないならタブを閉じる。
-            // 全てのタブを閉じた場合はアプリを閉じる（デフォルト動作）。
-            browser.closeTab(browser.foreground.tab)
-            App.toaster.show(R.string.tabClosed)
-            if (!browser.tabs.isEmpty()) return false
-            else return super.onKeyDown(keyCode, event)
+            KeyEvent.KEYCODE_VOLUME_UP -> {
+                browser.foreground.tab.wb.run {
+                    scrollTo(scrollX, Math.max(scrollY - height / 5, 0))
+                }
+                return true
+            }
+            KeyEvent.KEYCODE_VOLUME_DOWN -> {
+                browser.foreground.tab.wb.run {
+                    // TODO ページの高さの取得
+                    scrollTo(scrollX, scrollY + height / 5)
+                }
+                return true
+            }
         }
         return super.onKeyDown(keyCode, event)
     }
