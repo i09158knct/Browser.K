@@ -285,7 +285,7 @@ class MainActivity : Activity()
 
         browser.foreground.tab.wb.requestFocus()
         toolbar.visibility = View.VISIBLE
-        prgLoadingProgress.progress = 0
+        prgLoadingProgress.progress = 5
         prgLoadingProgress.visibility = View.VISIBLE
     }
 
