@@ -4,6 +4,8 @@ import android.graphics.Bitmap
 import android.net.http.SslError
 import android.util.Log
 import android.webkit.*
+import net.i09158knct.android.browserk.App
+import net.i09158knct.android.browserk.R
 import net.i09158knct.android.browserk.utils.Util
 
 class ForegroundTabManager(var tab: Tab) {
@@ -50,6 +52,13 @@ class ForegroundTabManager(var tab: Tab) {
         override fun shouldOverrideUrlLoading(view: WebView, url: String): Boolean {
             Log.v(Util.tag, "url: ${url}")
             return false
+        }
+
+        override fun onPageStarted(view: WebView?, url: String?, favicon: Bitmap?) {
+            App.toaster.show(R.string.loading)
+        }
+        override fun onPageFinished(view: WebView?, url: String?) {
+            App.toaster.show(R.string.loaded)
         }
     }
     object  BackGroundChromeClient : WebChromeClient() {

@@ -20,4 +20,5 @@
     <string name="menuCopyUrl">Copy URL</string>
     <string name="copied">Copied!</string>
     <string name="tabClosed">Closed</string>
+    <string name="loaded">Loaded</string>
 </resources>
