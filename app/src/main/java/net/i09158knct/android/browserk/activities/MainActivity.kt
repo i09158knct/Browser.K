@@ -165,32 +165,6 @@ class MainActivity : Activity()
         return super.onActivityResult(requestCode, resultCode, data)
     }
 
-    override fun onStart() {
-        super.onStart()
-        Log.wtf(Util.tag, "${intent?.dataString}")
-    }
-
-    override fun onRestart() {
-        super.onRestart()
-        Log.wtf(Util.tag, "${intent?.dataString}")
-    }
-
-    override fun onResume() {
-        super.onResume()
-        Log.wtf(Util.tag, "${intent?.dataString}")
-    }
-
-    override fun onPause() {
-        Log.wtf(Util.tag, "${intent?.dataString}")
-        super.onPause()
-    }
-
-    override fun onStop() {
-        Log.wtf(Util.tag, "${intent?.dataString}")
-        super.onStop()
-    }
-
-
     override fun onNewIntent(intent: Intent?) {
         Log.wtf(Util.tag, "${intent?.dataString}")
         if (intent?.dataString != null) {
