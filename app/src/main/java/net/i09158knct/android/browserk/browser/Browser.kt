@@ -6,7 +6,9 @@ import android.webkit.WebView
 import net.i09158knct.android.browserk.activities.MainActivity
 import net.i09158knct.android.browserk.utils.Util
 
-class Browser(val context: MainActivity, var homeUrl: String = "https://www.google.com") {
+class Browser(val context: MainActivity,
+              var homeUrl: String = "https://www.google.com",
+              var searchUrl: String = "https://www.google.co.jp/search?q=") {
     var isJsEnabled: Boolean = false
         get
         set(value) {
@@ -36,7 +38,7 @@ class Browser(val context: MainActivity, var homeUrl: String = "https://www.goog
 
     fun query(query: String) {
         val valid = validSchemaList.any { query.startsWith(it) }
-        val url = if (valid) query else Util.generateSearchUrl(query)
+        val url = if (valid) query else Util.generateSearchUrl(query, searchUrl)
         foreground.tab.loadUrl(url)
     }
 

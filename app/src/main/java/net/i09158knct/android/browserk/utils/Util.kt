@@ -43,9 +43,9 @@ object Util {
         a.startActivity(Intent.createChooser(i, a.getString(R.string.menuOpenInOtherBrowser)))
     }
 
-    fun generateSearchUrl(searchWord: String): String {
+    fun generateSearchUrl(searchWord: String, searchUrl: String): String {
         try {
-            return "https://www.google.co.jp/search?q=" + URLEncoder.encode(searchWord, "UTF-8")
+            return searchUrl + URLEncoder.encode(searchWord, "UTF-8")
         } catch (e: UnsupportedEncodingException) {
             e.printStackTrace()
         }
