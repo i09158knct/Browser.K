@@ -8,7 +8,7 @@ import net.i09158knct.android.browserk.utils.Util
 
 class Browser(val context: MainActivity,
               var homeUrl: String = "https://www.google.com",
-              var searchUrl: String = "https://www.google.co.jp/search?q=") {
+              var searchUrl: String = "https://www.google.com/search?q=") {
     var isJsEnabled: Boolean = false
         get
         set(value) {
