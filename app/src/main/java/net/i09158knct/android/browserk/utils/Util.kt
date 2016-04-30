@@ -49,7 +49,7 @@ object Util {
         } catch (e: UnsupportedEncodingException) {
             e.printStackTrace()
         }
-        return "https://www.google.co.jp/search?q="
+        return "https://www.google.com/search?q="
     }
 
     fun copyToClipboard(context: Context, text: String) {

@@ -60,7 +60,7 @@ class Browser(val context: MainActivity,
 
         // 閉じたタブがforegroundだった場合は別のタブをforegroundにする。
         // ただし、タブが全部閉じられた場合は何もしない。
-        if (foreground.tab.equals(tab) && !tabs.isEmpty()) {
+        if (foreground.tab == tab && !tabs.isEmpty()) {
             foreground.changeTab(tabs[Math.min(index, tabs.count() - 1)])
         }
 

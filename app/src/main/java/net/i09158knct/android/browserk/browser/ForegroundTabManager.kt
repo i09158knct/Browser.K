@@ -18,20 +18,32 @@ class ForegroundTabManager(var tab: Tab) {
         tab.wb.setWebChromeClient(chromeClient)
     }
 
+    /**
+     * フォアグラウンドタブを変更します。
+     */
     fun changeTab(newTab: Tab): Unit {
+        // 新しいタブにフォアグラウンド用クライアントをセットする。
         newTab.wb.setWebViewClient(viewClient)
         newTab.wb.setWebChromeClient(chromeClient)
+
+        // 古いタブにバックグラウンド用クライアントをセットする。
         val oldTab = tab
         oldTab.wb.setWebViewClient(BackgroundViewClient)
         oldTab.wb.setWebChromeClient(BackGroundChromeClient)
+
+        // プロパティを更新する。
         tab = newTab
-        listener?.onForegroundTabChanged(oldTab, tab)
-        listener?.onTitleChanged(tab.wb.title)
-        listener?.onUrlChanged(tab.wb.url)
-        listener?.onProgressChanged(tab.wb.progress)
-        listener?.onBackForwardStateChanged(
-                tab.wb.canGoBack(),
-                tab.wb.canGoForward())
+
+        // コールバックを呼び出す。
+        listener?.run {
+            onForegroundTabChanged(oldTab, tab)
+            onTitleChanged(tab.wb.title)
+            onUrlChanged(tab.wb.url)
+            onProgressChanged(tab.wb.progress)
+            onBackForwardStateChanged(
+                    tab.wb.canGoBack(),
+                    tab.wb.canGoForward())
+        }
     }
 
     interface IEventListener {
@@ -72,21 +84,25 @@ class ForegroundTabManager(var tab: Tab) {
 
         override fun onPageStarted(view: WebView, url: String, favicon: Bitmap?) {
             Log.v(Util.tag, "url: $url")
-            listener?.onPageStarted()
-            listener?.onUrlChanged(url)
-            listener?.onBackForwardStateChanged(
-                    tab.wb.canGoBack(),
-                    tab.wb.canGoForward())
-            listener?.onReloadStopStateChanged(true)
+            listener?.run {
+                onPageStarted()
+                onUrlChanged(url)
+                onReloadStopStateChanged(true)
+                onBackForwardStateChanged(
+                        tab.wb.canGoBack(),
+                        tab.wb.canGoForward())
+            }
         }
 
         override fun onPageFinished(view: WebView, url: String) {
             Log.v(Util.tag, "url: $url")
-            listener?.onPageFinished()
-            listener?.onReloadStopStateChanged(false)
-            listener?.onBackForwardStateChanged(
-                    tab.wb.canGoBack(),
-                    tab.wb.canGoForward())
+            listener?.run {
+                onPageFinished()
+                onReloadStopStateChanged(false)
+                onBackForwardStateChanged(
+                        tab.wb.canGoBack(),
+                        tab.wb.canGoForward())
+            }
         }
 
         override fun onReceivedError(view: WebView, errorCode: Int, description: String, failingUrl: String) {
