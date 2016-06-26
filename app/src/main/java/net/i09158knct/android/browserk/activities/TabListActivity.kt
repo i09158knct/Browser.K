@@ -58,17 +58,17 @@ class TabListActivity : Activity()
 }
 
 class TabListAdapter(context: Context, val tabs: List<Tab>, val listener: IEventListener)
-: ArrayAdapter<Tab>(context, 0, tabs) {
+: ArrayAdapter<Tab>(context, R.layout.item_tab, 0, tabs) {
     override fun getView(position: Int, convertView: View?, parent: ViewGroup?): View? {
         val view = convertView ?: View.inflate(context, R.layout.item_tab, null)
-        val tab = getItem(position)
-        if (tab == null) return view
+        val tab = getItem(position) ?: return null
 
-        view.txtTitle.text = tab.wb.title
-        view.txtUrl.text = tab.wb.url
-        view.grpTabSelectArea.setOnClickListener { listener.onClickTab(tab) }
-        view.btnClose.setOnClickListener { listener.onClickTabClose(tab) }
-        return view
+        return view.apply {
+            txtTitle.text = tab.wb.title
+            txtUrl.text = tab.wb.url
+            grpTabSelectArea.setOnClickListener { listener.onClickTab(tab) }
+            btnClose.setOnClickListener { listener.onClickTabClose(tab) }
+        }
     }
 
     interface IEventListener {
