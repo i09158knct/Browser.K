@@ -156,7 +156,7 @@ class MainActivity : Activity()
     }
 
     override fun onDestroy() {
-        windowManager.removeView(topwrapper)
+        windowManager.removeViewImmediate(topwrapper)
         Log.wtf(Util.tag, "${intent?.dataString}")
         super.onDestroy()
     }
