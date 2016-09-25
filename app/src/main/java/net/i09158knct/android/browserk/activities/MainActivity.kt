@@ -155,6 +155,11 @@ class MainActivity : Activity()
         }
     }
 
+    override fun onPause() {
+        super.onPause()
+        browser.saveState()
+    }
+
     override fun onDestroy() {
         windowManager.removeViewImmediate(topwrapper)
         Log.wtf(Util.tag, "${intent?.dataString}")
