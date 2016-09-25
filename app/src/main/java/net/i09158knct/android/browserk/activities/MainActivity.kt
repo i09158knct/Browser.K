@@ -68,15 +68,20 @@ class MainActivity : Activity()
             val clipboard = getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
             if (!(clipboard.hasPrimaryClip())) {
                 App.toaster.show("!(clipboard.hasPrimaryClip())")
-            } else if (!(clipboard.primaryClipDescription.hasMimeType(ClipDescription.MIMETYPE_TEXT_PLAIN))) {
-                App.toaster.show("since the clipboard has data but it is not plain text")
-            } else {
-                val item = clipboard.primaryClip.getItemAt(0)
-                val start = inputUrl.selectionStart
-                val end = inputUrl.selectionEnd
-                inputUrl.text.replace(Math.min(start, end), Math.max(start, end), item.text)
-
+                return@setOnClickListener
             }
+
+            val desc = clipboard.primaryClipDescription
+            if (!desc.hasMimeType(ClipDescription.MIMETYPE_TEXT_PLAIN)
+                    && !desc.hasMimeType(ClipDescription.MIMETYPE_TEXT_HTML)) {
+                App.toaster.show("since the clipboard has data but it is not plain text")
+                return@setOnClickListener
+            }
+
+            val item = clipboard.primaryClip.getItemAt(0)
+            val start = inputUrl.selectionStart
+            val end = inputUrl.selectionEnd
+            inputUrl.text.replace(Math.min(start, end), Math.max(start, end), item.text)
         }
         btnEnterUrl.setOnClickListener {
             val text = inputUrl.text.toString()
