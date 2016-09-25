@@ -65,7 +65,10 @@ class MainActivity : Activity()
         btnTitle.setOnClickListener { btnTitle.maxLines = if (btnTitle.maxLines == 1) 10 else 1 }
         btnClearUrl.setOnClickListener {
             inputUrl.text.clear()
+
             inputUrl.requestFocus()
+            val imm = getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+            imm.showSoftInput(inputUrl, InputMethodManager.SHOW_FORCED)
         }
         btnPasteUrl.setOnClickListener {
             val clipboard = getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
@@ -144,6 +147,7 @@ class MainActivity : Activity()
                     }
                     setOnDismissListener {
                         if (canHideToolBar()) {
+                            grpEditPanel.visibility = View.GONE
                             toolbar.visibility = View.INVISIBLE
                             topwrapper.visibility = View.INVISIBLE
                             topwrapper.touhed = false
