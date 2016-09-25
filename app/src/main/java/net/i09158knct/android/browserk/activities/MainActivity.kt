@@ -269,26 +269,26 @@ class MainActivity : Activity()
         return true
     }
 
+    override fun onBackPressed() {
+        // ページバック可能ならページバックする。
+        if (browser.foreground.tab.wb.canGoBack()) {
+            browser.foreground.tab.back()
+            return
+        }
+
+        // もうこれ以上戻れないならタブを閉じる。
+        browser.closeTab(browser.foreground.tab)
+        App.toaster.show(R.string.tabClosed)
+
+        // 全てのタブを閉じた場合はアプリを閉じる。
+        if (browser.tabs.isEmpty()) {
+            super.onBackPressed()
+        }
+    }
+
     override fun onKeyDown(keyCode: Int, event: KeyEvent?): Boolean {
         when (keyCode) {
-            // 戻るボタン押下時。
-            KeyEvent.KEYCODE_BACK -> {
-                // ページバック可能ならページバックする。
-                if (browser.foreground.tab.wb.canGoBack()) {
-                    browser.foreground.tab.back()
-                    return true
-                }
-
-                // もうこれ以上戻れないならタブを閉じる。
-                browser.closeTab(browser.foreground.tab)
-                App.toaster.show(R.string.tabClosed)
-
-                // 全てのタブを閉じた場合はアプリを閉じる。
-                if (!browser.tabs.isEmpty()) return true
-                else return super.onKeyDown(keyCode, event)
-            }
-
-            // 音量キーの操作でPageUp/PageDownする。
+        // 音量キーの操作でPageUp/PageDownする。
             KeyEvent.KEYCODE_VOLUME_UP -> {
                 browser.foreground.tab.wb.run {
                     scrollTo(scrollX, Math.max(scrollY - height / 5, 0))
