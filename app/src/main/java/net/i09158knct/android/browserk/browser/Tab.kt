@@ -43,7 +43,7 @@ class Tab(val wb: WebView, js: Boolean, image: Boolean) {
         //        ws.setMediaPlaybackRequiresUserGesture(true)
         //        ws.setMinimumFontSize(8)
         //        ws.setMinimumLogicalFontSize(8)
-        ws.setMixedContentMode(WebSettings.MIXED_CONTENT_NEVER_ALLOW)
+        //        ws.setMixedContentMode(WebSettings.MIXED_CONTENT_NEVER_ALLOW)
         //        ws.setNeedInitialFocus(true)
         // Sets whether this WebView should raster tiles when it is offscreen but attached
         // to a window. Turning this on can avoid rendering artifacts when animating an
