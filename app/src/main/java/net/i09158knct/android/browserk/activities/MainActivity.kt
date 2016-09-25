@@ -63,7 +63,10 @@ class MainActivity : Activity()
 
         // ヘッダーのイベントリスナーをセットする。
         btnTitle.setOnClickListener { btnTitle.maxLines = if (btnTitle.maxLines == 1) 10 else 1 }
-        btnClearUrl.setOnClickListener { inputUrl.text.clear() }
+        btnClearUrl.setOnClickListener {
+            inputUrl.text.clear()
+            inputUrl.requestFocus()
+        }
         btnPasteUrl.setOnClickListener {
             val clipboard = getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
             if (!(clipboard.hasPrimaryClip())) {
@@ -88,8 +91,9 @@ class MainActivity : Activity()
             if (text.isEmpty()) return@setOnClickListener
             browser.query(text)
         }
-        inputUrl.setOnFocusChangeListener { view, b ->
-            grpEditPanel.visibility = View.VISIBLE xor View.GONE xor grpEditPanel.visibility
+        inputUrl.setOnFocusChangeListener { view, focused ->
+            if (focused) grpEditPanel.visibility = View.VISIBLE
+            else grpEditPanel.visibility = View.GONE
         }
         inputUrl.setOnKeyListener { view: View, keyCode: Int, keyEvent: KeyEvent ->
             if (keyEvent.action == KeyEvent.ACTION_UP && keyCode == KeyEvent.KEYCODE_ENTER) {
@@ -115,9 +119,11 @@ class MainActivity : Activity()
             if (toolbar.visibility == View.VISIBLE) {
                 toolbar.visibility = View.INVISIBLE
             } else {
+                grpEditPanel.visibility = View.VISIBLE
                 toolbar.visibility = View.VISIBLE
                 topwrapper.visibility = View.VISIBLE
-                topwrapper.height = toolbar.height
+                toolbar.measure(0, 0)
+                topwrapper.height = toolbar.measuredHeight
                 topwrapper.touhed = false
                 popup = PopupMenu(this, btnMenu).apply {
                     menuInflater.inflate(R.menu.main_tool, menu)
